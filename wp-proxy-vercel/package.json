@@ -1,0 +1,8 @@
+{
+  "name": "wp-proxy-vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "wpcom": "^3.1.0"
+  }
+}
