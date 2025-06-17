@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     // Xử lý CORS cho mọi request
-    res.setHeader('Access-Control-Allow-Origin', 'https://legendary-train-j7qv6jp45j6fj5w7-3000.app.github.dev');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
