@@ -1,44 +1,36 @@
-import wpcomFactory from 'wpcom';
+import wpcomFactory from 'wpcom';  // hoặc dùng fetch tới WordPress API nếu bạn đã cài wpcomFactory
 
 export default async function handler(req, res) {
-    // Cấu hình CORS
-    res.setHeader('Access-Control-Allow-Origin', '*'); // hoặc chỉ định domain cụ thể thay vì '*'
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // Phản hồi CORS cho mọi request (bao gồm POST và OPTIONS)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Xử lý preflight request
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+  if (req.method === 'OPTIONS') {
+    // Chỉ xử lý OPTIONS pre-flight
+    return res.status(200).end();
+  }
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-    const { token, title, content, site } = req.body;
+  const { token, title, content, site } = req.body;
+  if (!token || !title || !content || !site) {
+    return res.status(400).json({ error: 'Missing fields in request body' });
+  }
 
-    if (!token || !title || !content || !site) {
-        return res.status(400).json({ error: 'Thiếu dữ liệu gửi lên' });
-    }
+  try {
+    const wpcom = wpcomFactory(token);
+    const post = await new Promise((resolve, reject) => {
+      wpcom.req.post(`/sites/${site}/posts/new`, { title, content, status: 'publish' }, (err, data) => {
+        err ? reject(err) : resolve(data);
+      });
+    });
 
-    try {
-        const wpcom = wpcomFactory(token);
-
-        const post = await wpcom
-            .site(site)
-            .request({
-                method: 'POST',
-                path: `/posts/new`,
-                body: {
-                    title,
-                    content,
-                    status: 'publish',
-                },
-            });
-
-        res.status(200).json(post);
-    } catch (error) {
-        console.error('Lỗi khi đăng bài:', error);
-        res.status(500).json({ error: 'Lỗi đăng bài lên WordPress' });
-    }
+    return res.status(200).json(post);
+  } catch (err) {
+    console.error('Proxy error:', err);
+    return res.status(500).json({ error: err.message || 'Server error' });
+  }
 }
