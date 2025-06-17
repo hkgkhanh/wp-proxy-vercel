@@ -6,14 +6,31 @@
       "use": "@vercel/node"
     }
   ],
+  "routes": [
+    {
+      "src": "/api/post",
+      "methods": ["GET", "POST", "OPTIONS"],
+      "dest": "/api/post.js"
+    }
+  ],
   "headers": [
     {
       "source": "/api/post",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://legendary-train-j7qv6jp45j6fj5w7-3000.app.github.dev" },
-        { "key": "Access-Control-Allow-Methods", "value": "POST,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://legendary-train-j7qv6jp45j6fj5w7-3000.app.github.dev"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
       ]
     }
   ]
 }
+
