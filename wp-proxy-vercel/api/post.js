@@ -2,7 +2,7 @@ import wpcomFactory from 'wpcom';  // hoặc dùng fetch tới WordPress API n�
 
 export default async function handler(req, res) {
   // Phản hồi CORS cho mọi request (bao gồm POST và OPTIONS)
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'https://legendary-train-j7qv6jp45j6fj5w7-3000.app.github.dev');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
