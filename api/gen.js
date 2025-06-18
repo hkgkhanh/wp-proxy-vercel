@@ -4,36 +4,33 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     if (req.method !== 'POST') {
         res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
         return;
     }
 
-    const body = await req.json();
+    const OLLAMA_URL = 'https://ollama-khanh.loca.lt';
+
     try {
-        const ollamaRes = await fetch("http://172.17.5.145:4000/api/generate", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
+        const ollamaRes = await fetch(`${OLLAMA_URL}/api/generate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Nếu Ollama yêu cầu thêm headers khác, thêm ở đây
+        },
+        body: JSON.stringify(req.body),
         });
 
-        if (!ollamaRes.ok) {
-            const err = await ollamaRes.text();
-            res.status(500).json({ error: 'Ollama lỗi: ' + err });
-            return;
-        }
+        const data = await ollamaRes.json();
 
-        res.setHeader('Content-Type', 'application/json');
-        const reader = ollamaRes.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            res.write(decoder.decode(value));
-        }
-        res.end();
-    } catch (e) {
-        console.error('Stream proxy lỗi:', e);
-        res.status(500).json({ error: e.message });
+        // Trả kết quả lại cho frontend
+        res.status(ollamaRes.status).json(data);
+    } catch (err) {
+        console.error('Proxy error:', err);
+        res.status(500).json({ error: 'Lỗi kết nối tới Ollama server' });
     }
 }
