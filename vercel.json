@@ -8,6 +8,11 @@
   ],
   "routes": [
     {
+      "src": "/api/upload",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "api/upload.js"
+    },
+    {
       "src": "/api/gen",
       "methods": ["POST", "OPTIONS"],
       "dest": "api/gen.js"
