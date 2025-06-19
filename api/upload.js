@@ -22,19 +22,19 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Thiếu token' });
     }
 
-    // Thu thập body raw (form-data)
     const buffers = [];
-    req.on('data', (chunk) => buffers.push(chunk));
+    req.on('data', chunk => buffers.push(chunk));
     req.on('end', async () => {
-        const formDataBody = Buffer.concat(buffers);
+        const fileBuffer = Buffer.concat(buffers);
 
-        const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${req.headers['site']}/media/new`, {
+        const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': req.headers['content-type'], // giữ nguyên content-type form-data
+                'Content-Disposition': `attachment; filename="${filename}"`,
+                'Content-Type': mimeType
             },
-            body: formDataBody
+            body: fileBuffer
         });
 
         const wpData = await wpRes.json();
