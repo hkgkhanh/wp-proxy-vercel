@@ -10,7 +10,7 @@
     {
       "src": "/api/gen",
       "methods": ["POST", "OPTIONS"],
-      "dest": "/gen.js"
+      "dest": "api/gen.js"
     },
     {
       "src": "/api/post",
