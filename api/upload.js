@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         const { token, site, filename, mimeType } = req.headers;
 
         if (!token || !site || !filename || !mimeType) {
-            return res.status(400).json({ error: 'Thiếu thông tin bắt buộc trong headers' });
+            return res.status(400).json({ error: 'Thiếu thông tin bắt buộc trong headers', header: req.headers });
         }
 
         const buffers = [];
