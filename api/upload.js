@@ -1,53 +1,66 @@
+import formidable from 'formidable';
+
+export const config = {
+  api: {
+    bodyParser: false, // bắt buộc để dùng formidable
+  },
+};
+
 export default async function handler(req, res) {
-    // Xử lý CORS cho mọi request
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, token, site, filename, mimeType'
-    );
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization'
+  );
 
-    // Nếu là preflight request (OPTIONS), trả về 200 luôn
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  const form = new formidable.IncomingForm();
+
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Lỗi khi phân tích form dữ liệu' });
     }
 
-    // Chỉ xử lý POST
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+    const token = fields.token?.[0];
+    const site = fields.site?.[0];
+    const file = files.image?.[0];
+
+    if (!token || !site || !file) {
+      return res.status(400).json({ error: 'Thiếu dữ liệu cần thiết' });
     }
+
+    const fileBuffer = await file.toBuffer();
+    const fileName = file.originalFilename;
+    const mimeType = file.mimetype;
 
     try {
-        const { token, site, filename, mimeType } = req.headers;
+      const uploadRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Disposition': `attachment; filename="${fileName}"`,
+          'Content-Type': mimeType,
+        },
+        body: fileBuffer,
+      });
 
-        if (!token || !site || !filename || !mimeType) {
-            return res.status(400).json({ error: 'Thiếu thông tin bắt buộc trong headers', header: req.headers });
-        }
+      const data = await uploadRes.json();
 
-        const buffers = [];
-        req.on('data', chunk => buffers.push(chunk));
-        req.on('end', async () => {
-            const fileBuffer = Buffer.concat(buffers);
+      if (!uploadRes.ok) {
+        return res.status(uploadRes.status).json({ error: data.message || 'Upload thất bại' });
+      }
 
-            const response = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Disposition': `attachment; filename="${filename}"`,
-                    'Content-Type': mimeType
-                },
-                body: fileBuffer
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                return res.status(response.status).json({ error: data.message || 'Upload thất bại' });
-            }
-
-            return res.status(200).json(data);
-        });
+      return res.status(200).json(data);
     } catch (error) {
-        return res.status(500).json({ error: error.message || 'Lỗi máy chủ proxy khi upload' });
+      return res.status(500).json({ error: error.message || 'Lỗi máy chủ proxy khi upload' });
     }
+  });
 }
