@@ -24,19 +24,19 @@ export default async function handler(req, res) {
             return;
         }
 
+        // Thu thập body raw (form-data)
         const buffers = [];
         req.on('data', (chunk) => buffers.push(chunk));
         req.on('end', async () => {
-            const fileBuffer = Buffer.concat(buffers);
+            const formDataBody = Buffer.concat(buffers);
 
-            const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
+            const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${req.headers['site']}/media/new`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Disposition': `attachment; filename="${filename}"`,
-                    'Content-Type': mimeType
+                    'Content-Type': req.headers['content-type'], // giữ nguyên content-type form-data
                 },
-                body: fileBuffer
+                body: formDataBody
             });
 
             const wpData = await wpRes.json();
