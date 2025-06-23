@@ -32,7 +32,7 @@ export default async function handler(req, res) {
             }
 
             const site = req.headers['site'];
-            const token = req.headers['Authorization'];
+            const token = req.headers['authorization'];
 
             const file = files.file[0];
 
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
 
     } catch (error) {
         // ❗ Vẫn phải gửi header CORS ở đây nữa
+        res.setHeader('Access-Control-Allow-Origin', '*');
         res.status(500).json({ error: error.message || 'Lỗi máy chủ proxy khi upload' });
     }
 }
