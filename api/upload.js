@@ -25,26 +25,27 @@ exports.default = async function handler(req, res) {
     try {
         const site = req.headers['site'];
         const token = req.headers['authorization'];
-        const contentType = req.headers['content-type'];
+        // const contentType = req.headers['content-type'];
 
-        console.log('req.readable', req.readable);
+        // console.log('req.readable', req.readable);
 
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
                 'Authorization': token,
-                'Content-Type': contentType, // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
+                'Content-Type': req.headers['content-type'], // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
             },
             body: req, // forward nguyên stream
             duplex: 'half'
         });
-        console.log('Headers:', req.headers);
-        console.log('req.readable', req.readable);
+        // console.log('Headers:', req.headers);
+        // console.log('req.readable', req.readable);
 
         const data = await wpRes.json();
+        console.log(wpRes);
 
         if (!wpRes.ok) {
-        return res.status(wpRes.status).json({ error: data.message || 'Upload thất bại' });
+            return res.status(wpRes.status).json({ error: data.message || 'Upload thất bại' });
         }
 
         return res.status(200).json(data);
