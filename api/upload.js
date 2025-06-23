@@ -26,6 +26,8 @@ exports.default = async function handler(req, res) {
         const site = req.headers['site'];
         const token = req.headers['authorization'];
         const contentType = req.headers['content-type'];
+        
+        console.log('req.readable', req.readable);
 
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
@@ -37,8 +39,6 @@ exports.default = async function handler(req, res) {
             duplex: 'half'
         });
         console.log('Headers:', req.headers);
-        req.on('data', chunk => console.log('Chunk:', chunk.length));
-        req.on('end', () => console.log('END of request'));
 
         const data = await wpRes.json();
 
