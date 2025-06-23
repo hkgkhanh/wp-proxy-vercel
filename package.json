@@ -2,8 +2,7 @@
   "name": "wp-proxy-vercel",
   "version": "1.0.0",
   "dependencies": {
-    "@vercel/node": "^5.2.2",
-    "formidable": "^2.1.5",
+    "formidable": "^3.5.4",
     "wpcom": "^3.1.0"
   }
 }

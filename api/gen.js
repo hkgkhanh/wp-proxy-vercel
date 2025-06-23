@@ -1,4 +1,4 @@
-exports.default = async function handler(req, res) {
+export default async function handler(req, res) {
     // Xử lý CORS cho mọi request
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
