@@ -1,11 +1,11 @@
 // const formidable = require('formidable');
 // const fs = require('fs');
 
-// exports.config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
+exports.config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 exports.default = async function handler(req, res) {
     // Đặt CORS headers cho tất cả mọi response
