@@ -1,7 +1,6 @@
-// const formidable = require('formidable');
-// const fs = require('fs');
+import FormData from 'form-data';
 
-exports.config = {
+export const config = {
   api: {
     bodyParser: false,
   },
@@ -25,18 +24,32 @@ exports.default = async function handler(req, res) {
     try {
         const site = req.headers['site'];
         const token = req.headers['authorization'];
-        // const contentType = req.headers['content-type'];
+        const contentType = req.headers['content-type'];
+        const buffers = [];
 
         // console.log('req.readable', req.readable);
+        // Thu thập stream (buffer từ formData)
+        for await (const chunk of req) {
+            buffers.push(chunk);
+        }
+
+        // Parse multipart nếu cần, ở đây giả định bạn chỉ gửi 1 ảnh, không cần parse key
+        const imageBuffer = Buffer.concat(buffers);
+
+        const form = new FormData();
+        form.append('media[]', imageBuffer, {
+            filename: 'upload.png',
+            contentType: contentType.includes('image/') ? contentType : 'image/png',
+        });
 
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
-                'Authorization': token,
-                'Content-Type': req.headers['content-type'], // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
+                Authorization: token,
+                ...form.getHeaders(), // rất quan trọng để có boundary
             },
-            body: req, // forward nguyên stream
-            duplex: 'half'
+            body: form,
+            duplex: 'half',
         });
         // console.log('Headers:', req.headers);
         // console.log('req.readable', req.readable);
