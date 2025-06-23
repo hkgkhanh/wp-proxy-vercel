@@ -28,12 +28,13 @@ exports.default = async function handler(req, res) {
         const contentType = req.headers['content-type'];
 
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
-        method: 'POST',
-        headers: {
-            'Authorization': token,
-            'Content-Type': contentType, // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
-        },
-        body: req, // forward nguyên stream
+            method: 'POST',
+            headers: {
+                'Authorization': token,
+                'Content-Type': contentType, // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
+            },
+            body: req, // forward nguyên stream
+            duplex: 'half',
         });
 
         const data = await wpRes.json();
