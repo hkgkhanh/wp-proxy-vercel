@@ -1,71 +1,61 @@
-import FormData from 'form-data';
-
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+    api: {
+        bodyParser: false,
+    },
 };
 
-exports.default = async function handler(req, res) {
-    // Đặt CORS headers cho tất cả mọi response
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, site, filename, mimetype');
-
-    // Trả về luôn nếu là preflight
+export default async function handler(req, res) {
     if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, site');
         return res.status(200).end();
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     try {
         const site = req.headers['site'];
         const token = req.headers['authorization'];
         const contentType = req.headers['content-type'];
-        const buffers = [];
 
-        // console.log('req.readable', req.readable);
-        // Thu thập stream (buffer từ formData)
+        // Đọc toàn bộ stream vào buffer
+        const chunks = [];
         for await (const chunk of req) {
-            buffers.push(chunk);
+            chunks.push(chunk);
         }
+        const bodyBuffer = Buffer.concat(chunks);
 
-        // Parse multipart nếu cần, ở đây giả định bạn chỉ gửi 1 ảnh, không cần parse key
-        const imageBuffer = Buffer.concat(buffers);
+        // Trích file nhúng trong multipart/form-data
+        const boundary = contentType.split('boundary=')[1];
+        const parts = bodyBuffer.toString().split(`--${boundary}`);
 
-        const form = new FormData();
-        form.append('media[]', imageBuffer, {
-            filename: 'upload.png',
-            contentType: contentType.includes('image/') ? contentType : 'image/png',
-        });
+        // Tìm phần có binary
+        const filePart = parts.find(p => p.includes('Content-Disposition') && p.includes('filename='));
+        if (!filePart) return res.status(400).json({ error: 'Không tìm thấy file' });
 
+        const binaryStart = filePart.indexOf('\r\n\r\n') + 4;
+        const binaryEnd = filePart.lastIndexOf('\r\n');
+        const fileBuffer = Buffer.from(filePart.slice(binaryStart, binaryEnd), 'binary');
+
+        // Upload lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
-            method: 'POST',
-            headers: {
-                Authorization: token,
-                ...form.getHeaders(), // rất quan trọng để có boundary
-            },
-            body: form,
-            duplex: 'half',
+        method: 'POST',
+        headers: {
+            Authorization: token,
+            'Content-Disposition': 'attachment; filename="upload.png"',
+            'Content-Type': 'image/png', // Bạn có thể cải tiến đoạn này để tự detect type
+        },
+        body: fileBuffer,
+        duplex: 'half',
         });
-        // console.log('Headers:', req.headers);
-        // console.log('req.readable', req.readable);
 
-        const data = await wpRes.json();
-        console.log(data);
-
+        const wpData = await wpRes.json();
+        console.log(wpData);
         if (!wpRes.ok) {
-            return res.status(wpRes.status).json({ error: data.message || 'Upload thất bại' });
+            return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
         }
 
-        return res.status(200).json(data);
-
-    } catch (error) {
-        // ❗ Vẫn phải gửi header CORS ở đây nữa
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.status(500).json({ error: error.message || 'Lỗi máy chủ proxy khi upload' });
+        return res.status(200).json(wpData);
+    } catch (err) {
+        return res.status(500).json({ error: err.message || 'Lỗi server' });
     }
 }
