@@ -42,7 +42,7 @@ exports.default = async function handler(req, res) {
         // console.log('req.readable', req.readable);
 
         const data = await wpRes.json();
-        console.log(wpRes);
+        console.log(data);
 
         if (!wpRes.ok) {
             return res.status(wpRes.status).json({ error: data.message || 'Upload thất bại' });
