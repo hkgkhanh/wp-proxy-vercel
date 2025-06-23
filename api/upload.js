@@ -20,36 +20,32 @@ export default async function handler(req, res) {
         const contentType = req.headers['content-type'];
 
         const boundary = contentType.split('boundary=')[1];
-        if (!boundary) return res.status(400).json({ error: 'Không tìm thấy boundary' });
+        if (!boundary) return res.status(400).json({ error: 'Missing boundary' });
 
-        // Bước 1: Đọc toàn bộ stream
+        // Đọc stream
         const chunks = [];
         for await (const chunk of req) {
-            chunks.push(chunk);
+        chunks.push(chunk);
         }
         const bodyBuffer = Buffer.concat(chunks);
-        console.log(bodyBuffer.toString());
 
-        // Bước 2: Tách phần chứa file
-        const parts = bodyBuffer
-        .toString('latin1') // giữ nguyên byte, không bị UTF-8 hóa
-        .split(`--${boundary}`)
-        .filter(part => part.includes('Content-Disposition') && part.includes('filename='));
+        // Tìm boundary trong buffer
+        const boundaryBuffer = Buffer.from(`--${boundary}`);
+        const startBoundaryIndex = bodyBuffer.indexOf(boundaryBuffer);
+        const endBoundaryIndex = bodyBuffer.lastIndexOf(boundaryBuffer);
 
-        if (parts.length === 0) {
-        return res.status(400).json({ error: 'No file part found' });
+        // Tìm phần đầu và cuối của file binary
+        const doubleCRLF = Buffer.from('\r\n\r\n');
+        const fileStartIndex = bodyBuffer.indexOf(doubleCRLF, startBoundaryIndex) + doubleCRLF.length;
+        const fileEndIndex = bodyBuffer.indexOf('\r\n--' + boundary, fileStartIndex); // kết thúc file
+
+        if (fileStartIndex === -1 || fileEndIndex === -1) {
+            return res.status(400).json({ error: 'Không xác định được vị trí binary' });
         }
 
-        const filePart = parts[0];
+        const fileBuffer = bodyBuffer.slice(fileStartIndex, fileEndIndex);
 
-        const binaryStart = filePart.indexOf('\r\n\r\n') + 4;
-        const binaryEnd = filePart.lastIndexOf('\r\n');
-        const binaryContent = filePart.slice(binaryStart, binaryEnd);
-
-        // Bước 3: Convert lại thành Buffer đúng
-        const binaryBuffer = Buffer.from(binaryContent, 'latin1');
-
-        // Bước 4: Gửi lên WordPress
+        // Upload lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
@@ -57,18 +53,18 @@ export default async function handler(req, res) {
                 'Content-Disposition': 'attachment; filename="upload.png"',
                 'Content-Type': 'image/png',
             },
-            body: binaryBuffer,
+            body: fileBuffer,
             duplex: 'half',
         });
 
         const wpData = await wpRes.json();
 
         if (!wpRes.ok) {
-        return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
+            return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
         }
 
         res.status(200).json(wpData);
     } catch (err) {
-        res.status(500).json({ error: err.message || 'Lỗi proxy server' });
+        res.status(500).json({ error: err.message || 'Lỗi server' });
     }
 }
