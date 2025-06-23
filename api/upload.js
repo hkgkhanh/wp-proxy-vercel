@@ -1,3 +1,12 @@
+import formidable from 'formidable';
+import fs from 'fs';
+
+export const config = {
+    api: {
+        bodyParser: false, // disable default body parser
+    },
+};
+
 export default async function handler(req, res) {
     // Đặt CORS headers cho tất cả mọi response
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,29 +23,27 @@ export default async function handler(req, res) {
     }
 
     try {
-        const token = req.headers['authorization']?.split(' ')[1];
-        const site = req.headers['site'];
-        const filename = req.headers['filename'];
-        const mimeType = req.headers['mimetype'];
+        const form = new formidable.IncomingForm();
 
-        if (!token || !site || !filename || !mimeType) {
-            res.status(400).json({ error: 'Thiếu thông tin trong headers' });
-            return;
-        }
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                res.status(500).json({ error: 'Lỗi khi parse form data' });
+                return;
+            }
 
-        // Thu thập body raw (form-data)
-        const buffers = [];
-        req.on('data', (chunk) => buffers.push(chunk));
-        req.on('end', async () => {
-            const formDataBody = Buffer.concat(buffers);
+            const site = req.headers['site'];
+            const token = req.headers['Authorization'];
 
-            const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${req.headers['site']}/media/new`, {
+            const file = files.file[0];
+
+            const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': req.headers['content-type'], // giữ nguyên content-type form-data
+                    'Authorization': token,
+                    'Content-Disposition': `attachment; filename="${file.originalFilename}"`,
+                    'Content-Type': file.mimetype,
                 },
-                body: formDataBody
+                body: fs.createReadStream(file.filepath),
             });
 
             const wpData = await wpRes.json();
@@ -48,6 +55,7 @@ export default async function handler(req, res) {
 
             res.status(200).json(wpData);
         });
+
     } catch (error) {
         // ❗ Vẫn phải gửi header CORS ở đây nữa
         res.status(500).json({ error: error.message || 'Lỗi máy chủ proxy khi upload' });
