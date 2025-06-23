@@ -34,7 +34,6 @@ exports.default = async function handler(req, res) {
                 'Content-Type': contentType, // bắt buộc giữ nguyên content-type (multipart/form-data; boundary=...)
             },
             body: req, // forward nguyên stream
-            duplex: 'half',
         });
 
         const data = await wpRes.json();
