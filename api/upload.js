@@ -36,7 +36,9 @@ exports.default = async function handler(req, res) {
             body: req, // forward nguyên stream
             duplex: 'half'
         });
-        console.log(contentType);
+        console.log('Headers:', req.headers);
+        req.on('data', chunk => console.log('Chunk:', chunk.length));
+        req.on('end', () => console.log('END of request'));
 
         const data = await wpRes.json();
 
