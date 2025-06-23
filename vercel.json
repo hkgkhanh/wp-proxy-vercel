@@ -1,16 +1,11 @@
 {
   "version": 2,
-  "functions": {
-    "api/upload.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/gen.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/post.js": {
-      "runtime": "@vercel/node@2.0.0"
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/upload",
