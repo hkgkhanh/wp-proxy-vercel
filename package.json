@@ -5,7 +5,6 @@
   "dependencies": {
     "@vercel/node": "^5.2.2",
     "formidable": "^3.5.4",
-    "fs": "^0.0.1-security",
     "wpcom": "^3.1.0"
   }
 }

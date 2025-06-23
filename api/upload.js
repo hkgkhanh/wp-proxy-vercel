@@ -1,13 +1,13 @@
-const formidable = require('formidable');
-const fs = require('fs');
+import formidable from 'formidable';
+import fs from 'fs';
 
-module.exports.config = {
+export const config = {
     api: {
         bodyParser: false, // disable default body parser
     },
 };
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     // Đặt CORS headers cho tất cả mọi response
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
