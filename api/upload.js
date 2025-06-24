@@ -25,9 +25,10 @@ export default async function handler(req, res) {
         const { base64 } = req.body;
         const token = req.headers['authorization'];
         const site = req.headers['site'];
-        const filename = req.headers['x-filename'] || 'upload.png';
+        const filename = req.headers['x-filename'] || 'upload.jpg';
 
         console.log(base64);
+        console.log(filename);
 
          // Parse base64
         const matches = base64.match(/^data:(.+);base64,(.+)$/);
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
         const fileBuffer = Buffer.from(base64Data, 'base64');
 
         console.log(fileBuffer);
+        console.log('Buffer length:', fileBuffer.length);
 
         // Gửi file buffer lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
