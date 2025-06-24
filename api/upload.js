@@ -30,26 +30,37 @@ export default async function handler(req, res) {
         console.log(base64);
         console.log(filename);
 
-         // Parse base64
-        const matches = base64.match(/^data:(.+);base64,(.+)$/);
-        if (!matches) return res.status(400).json({ error: 'Base64 không hợp lệ' });
+        // Parse base64
+        // const matches = base64.match(/^data:(.+);base64,(.+)$/);
+        // if (!matches) return res.status(400).json({ error: 'Base64 không hợp lệ' });
 
-        const mimeType = matches[1];
-        const base64Data = matches[2];
-        const fileBuffer = Buffer.from(base64Data, 'base64');
+        // const mimeType = matches[1];
+        // const base64Data = matches[2];
+        // const fileBuffer = Buffer.from(base64Data, 'base64');
+        console.log(mimeType);
 
-        console.log(base64Data);
-        console.log('Buffer length:', fileBuffer.length);
+        const base64String = base64.replace(/^data:image\/jpeg;base64,/, '').replace(/ /g, '+');
+        const buffer = Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
+
+        const timestamp = Date.now();
+        const dotIndex = filename.lastIndexOf('.');
+        const name = filename.substring(0, dotIndex);
+        const ext = filename.substring(dotIndex);
+        const hashedFilename = `${name}_${timestamp}${ext}`;
+
+
+        console.log(buffer);
+        console.log('Buffer length:', buffer.length);
 
         // Gửi file buffer lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
                 Authorization: token,
-                'Content-Disposition': `attachment; filename="${filename}"`,
+                'Content-Disposition': `attachment; filename="${hashedFilename}"`,
                 'Content-Type': mimeType
             },
-            body: fileBuffer,
+            body: buffer,
             duplex: 'half'
         });
 
