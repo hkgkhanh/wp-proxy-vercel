@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         const base64Data = matches[2];
         const fileBuffer = Buffer.from(base64Data, 'base64');
 
-        console.log(fileBuffer);
+        console.log(base64Data);
         console.log('Buffer length:', fileBuffer.length);
 
         // Gửi file buffer lên WordPress
