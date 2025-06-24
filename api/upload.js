@@ -1,31 +1,43 @@
+const { Buffer } = require('buffer');
+
 export const config = {
     api: {
-        bodyParser: false
+        bodyParser: true
     }
 };
 
 export default async function handler(req, res) {
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, site, X-Filename');
 
+    // Nếu là preflight request (OPTIONS), trả về 200 luôn
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
+    // Chỉ xử lý POST
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     try {
+        const { base64 } = req.body;
         const token = req.headers['authorization'];
         const site = req.headers['site'];
-        const contentType = req.headers['content-type'];
-        const filename = req.headers['x-filename'] || 'upload.jpg';
+        const filename = req.headers['x-filename'] || 'upload.png';
 
-        // Đọc raw binary từ stream
-        const chunks = [];
-        for await (const chunk of req) {
-            chunks.push(chunk);
-        }
-        const fileBuffer = Buffer.concat(chunks);
+        console.log(base64);
+
+         // Parse base64
+        const matches = base64.match(/^data:(.+);base64,(.+)$/);
+        if (!matches) return res.status(400).json({ error: 'Base64 không hợp lệ' });
+
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const fileBuffer = Buffer.from(base64Data, 'base64');
+
+        console.log(fileBuffer);
 
         // Gửi file buffer lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
@@ -33,7 +45,7 @@ export default async function handler(req, res) {
             headers: {
                 Authorization: token,
                 'Content-Disposition': `attachment; filename="${filename}"`,
-                'Content-Type': contentType
+                'Content-Type': mimeType
             },
             body: fileBuffer,
             duplex: 'half'
