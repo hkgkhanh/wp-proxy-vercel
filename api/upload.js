@@ -22,25 +22,14 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { base64 } = req.body;
+        const { base64, filename = 'upload.jpg', mimeType = 'image/jpeg' } = req.body;
         const token = req.headers['authorization'];
         const site = req.headers['site'];
-        const filename = req.headers['x-filename'] || 'upload.jpg';
+        // const filename = req.headers['x-filename'] || 'upload.jpg';
 
-        console.log(base64);
+        // console.log(base64);
         console.log(filename);
-
-        // Parse base64
-        const matches = base64.match(/^data:(.+);base64,(.+)$/);
-        if (!matches) return res.status(400).json({ error: 'Base64 không hợp lệ' });
-
-        const mimeType = matches[1];
-        const base64Data = matches[2];
-        // const fileBuffer = Buffer.from(base64Data, 'base64');
         console.log(mimeType);
-
-        const base64String = base64.replace(/^data:image\/jpeg;base64,/, '').replace(/ /g, '+');
-        const buffer = Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
 
         const timestamp = Date.now();
         const dotIndex = filename.lastIndexOf('.');
@@ -48,19 +37,35 @@ export default async function handler(req, res) {
         const ext = filename.substring(dotIndex);
         const hashedFilename = `${name}_${timestamp}${ext}`;
 
+        // Tách base64 nếu là data URL
+        const base64Data = base64.split(',')[1]; // bỏ phần "data:image/jpeg;base64,..."
+        const fileBuffer = Buffer.from(base64Data, 'base64');
 
-        console.log(buffer);
-        console.log('Buffer length:', buffer.length);
+        // Tạo multipart body thủ công
+        const boundary = '----WebKitFormBoundary' + crypto.randomBytes(16).toString('hex');
+
+        const multipartBody = Buffer.concat([
+            Buffer.from(`--${boundary}\r\n`),
+            Buffer.from(`Content-Disposition: form-data; name="media[]"; filename="${filename}"\r\n`),
+            Buffer.from(`Content-Type: ${mimeType}\r\n\r\n`),
+            fileBuffer,
+            Buffer.from(`\r\n--${boundary}--\r\n`)
+        ]);
+
+        // const base64String = base64.replace(/^data:image\/jpeg;base64,/, '').replace(/ /g, '+');
+        // const buffer = Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
+
+        // console.log(buffer);
+        // console.log('Buffer length:', buffer.length);
 
         // Gửi file buffer lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
             headers: {
-                Authorization: token,
-                'Content-Disposition': `attachment; filename="${hashedFilename}"`,
-                'Content-Type': mimeType
+                'Authorization': token,
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
             },
-            body: buffer,
+            body: multipartBody,
             duplex: 'half'
         });
 
