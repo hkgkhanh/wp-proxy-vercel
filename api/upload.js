@@ -1,4 +1,5 @@
 const { Buffer } = require('buffer');
+const crypto = require('crypto');
 
 export const config = {
     api: {
