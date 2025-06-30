@@ -35,6 +35,7 @@ exports.default = async function handler(req, res) {
             })
         });
 
+        console.log(CF_ACCID);
         console.log(response);
 
         const contentType = response.headers.get('content-type');
