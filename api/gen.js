@@ -16,7 +16,7 @@ exports.default = async function handler(req, res) {
     // const HF_TOKEN = process.env.HF_TOKEN;
     const CF_ACCID = process.env.CLOUDFLARE_ACCID;
     const CF_TOKEN = process.env.CLOUDFLARE_TOKEN;
-    const model = "@cf/lykon/dreamshaper-8-lcm";
+    const model = "@cf/bytedance/stable-diffusion-xl-lightning";
 
     const MODEL_ENDPOINT = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCID}/ai/run/${model}`; // hoặc model khác
 
