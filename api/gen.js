@@ -35,21 +35,14 @@ exports.default = async function handler(req, res) {
             })
         });
 
-        console.log(CF_ACCID);
-        console.log(response);
+        // console.log(CF_ACCID);
+        // console.log(response);
 
-        const contentType = response.headers.get('content-type');
+        const contentType = response.headers.get("content-type");
+        const arrayBuffer = await response.arrayBuffer();
 
-        // if (contentType && contentType.includes('application/json')) {
-        //     const json = await hfRes.json();
-        //     return res.status(hfRes.status).json(json);
-        // } else {
-        //     const blob = await hfRes.blob();
-        //     res.setHeader("Content-Type", "image/png");
-        //     blob.arrayBuffer().then((buffer) => {
-        //         res.status(200).send(Buffer.from(buffer));
-        //     });
-        // }
+        res.setHeader("Content-Type", contentType);
+        res.status(200).send(Buffer.from(arrayBuffer));
 
     } catch (err) {
         console.error('Proxy error:', err);
