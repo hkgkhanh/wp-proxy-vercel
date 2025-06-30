@@ -13,36 +13,45 @@ exports.default = async function handler(req, res) {
         return res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
     }
 
-    const HF_TOKEN = process.env.HF_TOKEN;
-    const MODEL_ENDPOINT = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"; // hoặc model khác
+    // const HF_TOKEN = process.env.HF_TOKEN;
+    const CF_ACCID = process.env.CLOUDFLARE_ACCID;
+    const CF_TOKEN = process.env.CLOUDFLARE_TOKEN;
+    const model = "@cf/lykon/dreamshaper-8-lcm";
+
+    const MODEL_ENDPOINT = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCID}/ai/run/${model}`; // hoặc model khác
 
     try {
-        const hfRes = await fetch(MODEL_ENDPOINT, {
+        const response = await fetch(MODEL_ENDPOINT, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${HF_TOKEN}`,
-                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CF_TOKEN}`,
             },
+            // body: JSON.stringify({
+            //     inputs: req.body.prompt || "a robot dancing in the rain",
+            //     options: { wait_for_model: true },
+            // }),
             body: JSON.stringify({
-                inputs: req.body.prompt || "a robot dancing in the rain",
-                options: { wait_for_model: true },
-            }),
+                prompt: req.body.prompt || "A robot dancing in the rain"
+            })
         });
 
-        const contentType = hfRes.headers.get('content-type');
+        console.log(response);
 
-        if (contentType && contentType.includes('application/json')) {
-            const json = await hfRes.json();
-            return res.status(hfRes.status).json(json);
-        } else {
-            const blob = await hfRes.blob();
-            res.setHeader("Content-Type", "image/png");
-            blob.arrayBuffer().then((buffer) => {
-                res.status(200).send(Buffer.from(buffer));
-            });
-        }
+        const contentType = response.headers.get('content-type');
+
+        // if (contentType && contentType.includes('application/json')) {
+        //     const json = await hfRes.json();
+        //     return res.status(hfRes.status).json(json);
+        // } else {
+        //     const blob = await hfRes.blob();
+        //     res.setHeader("Content-Type", "image/png");
+        //     blob.arrayBuffer().then((buffer) => {
+        //         res.status(200).send(Buffer.from(buffer));
+        //     });
+        // }
+
     } catch (err) {
         console.error('Proxy error:', err);
-        return res.status(500).json({ error: 'Lỗi proxy đến Hugging Face API' });
+        return res.status(500).json({ error: 'Lỗi proxy đến Cloudflare API' });
     }
 }
