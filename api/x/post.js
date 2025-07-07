@@ -54,39 +54,39 @@ export default async function handler(req, res) {
         // const user = await client.v2.me();
         // console.log('📛 Authenticated user:', user);
 
-        const textArray = splitTextIntoTweets(text);
-        const tweets = [];
+        // const textArray = splitTextIntoTweets(text);
+        // const tweets = [];
 
-        const firstTweet = await client.v1.tweet(textArray[0], {
-            media_ids: [mediaId]
-        });
-
-        tweets.push(firstTweet);
-        let replyToId = firstTweet.id_str;
-
-        for (let i = 1; i < textArray.length; i++) {
-            const tweet = await client.v1.tweet(textArray[i], {
-                in_reply_to_status_id: replyToId,
-                auto_populate_reply_metadata: true
-            });
-            tweets.push(tweet);
-            replyToId = tweet.id_str;
-        }
-
-        // const result = await client.v2.tweet({
-        //     text,
-        //     media: mediaId ? { media_ids: [mediaId] } : undefined,
+        // const firstTweet = await client.v1.tweet(textArray[0], {
+        //     media_ids: [mediaId]
         // });
 
-        // res.status(200).json(result);
-        res.status(200).json({
-            success: true,
-            thread: tweets.map((t) => ({
-                id: t.id_str,
-                text: t.full_text || t.text,
-                url: `https://twitter.com/${t.user.screen_name}/status/${t.id_str}`,
-            })),
+        // tweets.push(firstTweet);
+        // let replyToId = firstTweet.id_str;
+
+        // for (let i = 1; i < textArray.length; i++) {
+        //     const tweet = await client.v1.tweet(textArray[i], {
+        //         in_reply_to_status_id: replyToId,
+        //         auto_populate_reply_metadata: true
+        //     });
+        //     tweets.push(tweet);
+        //     replyToId = tweet.id_str;
+        // }
+
+        const result = await client.v2.tweet({
+            text,
+            media: mediaId ? { media_ids: [mediaId] } : undefined,
         });
+
+        res.status(200).json(result);
+        // res.status(200).json({
+        //     success: true,
+        //     thread: tweets.map((t) => ({
+        //         id: t.id_str,
+        //         text: t.full_text || t.text,
+        //         url: `https://twitter.com/${t.user.screen_name}/status/${t.id_str}`,
+        //     })),
+        // });
     } catch (error) {
         console.error('❌ Post X tweet error:', error);
         res.status(500).json({ error: error.message });
