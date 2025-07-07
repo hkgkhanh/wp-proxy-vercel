@@ -22,6 +22,9 @@ export default async function handler(req, res) {
             accessSecret: process.env.X_ACCESS_SECRET,
         });
 
+        const user = await client.v2.me();
+        console.log('📛 Authenticated user:', user);
+
         const result = await client.v2.tweet({
             text,
             media: mediaId ? { media_ids: [mediaId] } : undefined,
