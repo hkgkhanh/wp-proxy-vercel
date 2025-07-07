@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         const user = await client.v2.me();
         console.log('📛 Authenticated user:', user);
 
-        const result = await client.v2.tweet({
+        const result = await client.v1.tweet({
             text,
             media: mediaId ? { media_ids: [mediaId] } : undefined,
         });
