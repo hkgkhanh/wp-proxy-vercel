@@ -7,14 +7,19 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     try {
-        const { base64, filename, mimeType } = req.body;
-        const accessToken = process.env.LI_ACCESS_TOKEN;
-        const userId = process.env.LI_USER_ID; // Format: urn:li:person:abc123
+        const { base64, filename, mimeType, liAccessToken, authorUrn } = req.body;
+        // const accessToken = process.env.LI_ACCESS_TOKEN;
+        const accessToken = liAccessToken;
+        // const userId = process.env.LI_USER_ID; // Format: urn:li:person:abc123
+        const urn = authorUrn;
+
+        console.log(accessToken);
+        console.log(urn);
 
         // 1. Register upload with LinkedIn
         const registerPayload = {
         registerUploadRequest: {
-            owner: userId,
+            owner: urn,
             recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
             serviceRelationships: [
             {
