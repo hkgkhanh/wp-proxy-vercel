@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     console.log(liAccessToken);
 
     try {
-        const response = await fetch('https://api.linkedin.com/v2/me', {
+        const response = await fetch('https://api.linkedin.com/v2/userinfo', {
             headers: {
                 Authorization: `Bearer ${liAccessToken}`,
                 'X-Restli-Protocol-Version': '2.0.0',
