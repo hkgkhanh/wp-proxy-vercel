@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     }
 
     const { accessToken } = req.body;
+    console.log(accessToken);
 
     try {
         const response = await fetch('https://api.linkedin.com/v2/me', {
