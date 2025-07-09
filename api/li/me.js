@@ -11,13 +11,13 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { accessToken } = req.body;
-    console.log(accessToken);
+    const { liAccessToken } = req.body;
+    console.log(liAccessToken);
 
     try {
         const response = await fetch('https://api.linkedin.com/v2/me', {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${liAccessToken}`,
                 'X-Restli-Protocol-Version': '2.0.0',
             },
         });
