@@ -23,13 +23,13 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
         }
 
-        const urn = `urn:li:person:${data.id}`;
+        const urn = `urn:li:person:${data.sub}`;
         res.status(200).json({ urn });
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch LinkedIn profile', details: err.message });
