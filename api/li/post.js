@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                 },
             },
             visibility: {
-                'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
+                'com.linkedin.ugc.MemberNetworkVisibility': 'CONNECTIONS',
             },
         };
 
