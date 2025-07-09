@@ -23,6 +23,7 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
+        console.log(data);
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
