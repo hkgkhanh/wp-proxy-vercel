@@ -13,22 +13,23 @@ export default async function handler(req, res) {
 
     try {
         const { text, assetUrn, authorUrn, liAccessToken } = req.body;
+        console.log(assetUrn);
 
         const postBody = {
             author: authorUrn,
             lifecycleState: 'PUBLISHED',
             specificContent: {
                 'com.linkedin.ugc.ShareContent': {
-                shareCommentary: {
-                    text: text,
-                },
-                shareMediaCategory: 'IMAGE',
-                media: [
-                    {
-                    status: 'READY',
-                    media: assetUrn,
+                    shareCommentary: {
+                        text: text,
                     },
-                ],
+                    shareMediaCategory: 'IMAGE',
+                    media: [
+                        {
+                            status: 'READY',
+                            media: assetUrn,
+                        },
+                    ],
                 },
             },
             visibility: {
