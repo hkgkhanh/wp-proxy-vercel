@@ -1,5 +1,7 @@
 const { TwitterApi } = require('twitter-api-v2');
 
+const tokenStore = {};
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -19,8 +21,10 @@ export default async function handler(req, res) {
         const authLink = await client.generateAuthLink(callback_url);
         const authUrl = authLink.url;
 
+        tokenStore[authLink.oauth_token] = authLink.oauth_token_secret;
+
         console.log(authUrl);
-        res.status(200).json({ authLink });
+        res.status(200).json({ authUrl });
 
     } catch (error) {
         console.error('❌ Log into X error:', error);
