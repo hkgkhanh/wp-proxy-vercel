@@ -13,8 +13,8 @@ export default async function handler(req, res) {
         // const userId = process.env.LI_USER_ID; // Format: urn:li:person:abc123
         const urn = authorUrn;
 
-        console.log(accessToken);
-        console.log(urn);
+        // console.log(accessToken);
+        // console.log(urn);
 
         // 1. Register upload with LinkedIn
         const registerPayload = {
@@ -63,8 +63,8 @@ export default async function handler(req, res) {
         });
 
         if (!uploadRes.ok) {
-        const uploadError = await uploadRes.text();
-        throw new Error(`Image upload failed: ${uploadError}`);
+            const uploadError = await uploadRes.text();
+            throw new Error(`Image upload failed: ${uploadError}`);
         }
 
         // 3. Return the asset URN

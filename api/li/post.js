@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     try {
         const { text, assetUrn, authorUrn, liAccessToken } = req.body;
-        console.log(assetUrn);
+        // console.log(assetUrn);
 
         const postBody = {
             author: authorUrn,
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         }
 
         const result = await response.json();
-        console.log('✅ LinkedIn post success:', result);
+        // console.log('✅ LinkedIn post success:', result);
 
         res.status(200).json({ success: true, result });
     } catch (error) {

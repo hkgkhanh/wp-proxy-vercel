@@ -12,15 +12,8 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, site, X-Filename');
 
-    // Nếu là preflight request (OPTIONS), trả về 200 luôn
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    // Chỉ xử lý POST
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+    if (req.method === 'OPTIONS') res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
     try {
         const { base64, filename = 'upload.jpg', mimeType = 'image/jpeg' } = req.body;
@@ -29,8 +22,8 @@ export default async function handler(req, res) {
         // const filename = req.headers['x-filename'] || 'upload.jpg';
 
         // console.log(base64);
-        console.log(filename);
-        console.log(mimeType);
+        // console.log(filename);
+        // console.log(mimeType);
 
         const timestamp = Date.now();
         const dotIndex = filename.lastIndexOf('.');
@@ -71,7 +64,7 @@ export default async function handler(req, res) {
         });
 
         const wpData = await wpRes.json();
-        console.log(wpData);
+        // console.log(wpData);
 
         if (!wpRes.ok) {
             return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });

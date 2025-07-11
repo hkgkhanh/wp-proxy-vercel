@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     const { liAccessToken } = req.body;
-    console.log(liAccessToken);
+    // console.log(liAccessToken);
 
     try {
         const response = await fetch('https://api.linkedin.com/v2/userinfo', {

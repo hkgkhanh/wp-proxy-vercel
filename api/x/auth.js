@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         // console.log('Saving:', oauth_token, authLink.oauth_token_secret);
         await redis.set(`twitter_oauth_secret:${oauth_token}`, authLink.oauth_token_secret);
 
-        console.log(authUrl);
+        // console.log(authUrl);
         res.status(200).json({ authUrl, oauth_token});
 
     } catch (error) {
