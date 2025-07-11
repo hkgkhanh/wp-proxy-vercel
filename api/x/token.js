@@ -1,5 +1,10 @@
 const { TwitterApi } = require('twitter-api-v2');
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,7 +15,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     const { oauth_token, oauth_verifier } = req.body;
-    const oauth_token_secret = await kv.get(`twitter:secret:${oauth_token}`);
+    const oauth_token_secret = await redis.get(`twitter_oauth_secret:${oauth_token}`);
 
     console.log(oauth_token, oauth_verifier, oauth_token_secret);
 
