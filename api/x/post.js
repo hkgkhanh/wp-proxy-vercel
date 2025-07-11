@@ -47,6 +47,9 @@ export default async function handler(req, res) {
         const { text, mediaId, accessToken } = req.body;
         const accessSecret = await redis.get(`twitter_access_secret:${accessToken}`);
 
+        console.log(accessToken);
+        console.log(accessSecret);
+
         const client = new TwitterApi({
             appKey: process.env.X_API_KEY,
             appSecret: process.env.X_API_SECRET,
