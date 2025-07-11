@@ -36,14 +36,16 @@ exports.default = async function handler(req, res) {
             })
         });
 
+        const responseData = await response.json();
+
         // console.log(CF_ACCID);
-        console.log(await response.json());
+        // console.log(responseData);
 
-        const contentType = response.headers.get("content-type");
-        const arrayBuffer = await response.arrayBuffer();
-
-        res.setHeader("Content-Type", contentType);
-        res.status(200).send(Buffer.from(arrayBuffer));
+        if (responseData.response) {
+            res.status(200).json({ response: responseData.response });
+        } else {
+            res.status(400).json({ responseData });
+        }
 
     } catch (err) {
         console.error('Proxy error:', err);
