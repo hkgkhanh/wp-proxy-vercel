@@ -36,7 +36,10 @@ export default async function handler(req, res) {
         // Optional cleanup
         await redis.del(`twitter_oauth_secret:${oauth_token}`);
 
-        res.status(200).json({ accessToken, accessSecret, screenName, userId });
+        // save access token here
+        await redis.set(`twitter_access_secret:${accessToken}`, accessSecret);
+
+        res.status(200).json({ accessToken, screenName, userId });
 
     } catch (error) {
         console.error('❌ Log into X error:', error);
