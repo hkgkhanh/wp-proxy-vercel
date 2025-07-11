@@ -37,7 +37,7 @@ exports.default = async function handler(req, res) {
         });
 
         // console.log(CF_ACCID);
-        console.log(response.json());
+        console.log(await response.json());
 
         const contentType = response.headers.get("content-type");
         const arrayBuffer = await response.arrayBuffer();
