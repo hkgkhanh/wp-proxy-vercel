@@ -1,5 +1,5 @@
 const { TwitterApi } = require('twitter-api-v2');
-import { storeSecret } from '../../lib/tokenStore';
+import { getSecret, deleteSecret } from '../../lib/tokenStore';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,22 +9,27 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-    const { callback_url } = req.body;
+    const { oauth_token, oauth_verifier } = req.body;
+    const oauth_token_secret = getSecret(oauth_token);
+
+    if (!oauth_token || !oauth_verifier || !oauth_token_secret) {
+        return res.status(400).json({ error: 'Missing or invalid oauth_token or secret' });
+    }
 
     try {
         const client = new TwitterApi({
             appKey: process.env.X_API_KEY,
             appSecret: process.env.X_API_SECRET,
+            accessToken: oauth_token,
+            accessSecret: oauth_token_secret,
         });
 
-        const authLink = await client.generateAuthLink(callback_url);
-        const authUrl = authLink.url;
-        const oauth_token = authLink.oauth_token;
+        const { accessToken, accessSecret, screenName, userId } = await client.login(oauth_verifier);
 
-        storeSecret(authLink.oauth_token, authLink.oauth_token_secret);
+        // Optional cleanup
+        deleteSecret(oauth_token);
 
-        console.log(authUrl);
-        res.status(200).json({ authUrl, oauth_token});
+        res.status(200).json({ accessToken, accessSecret, screenName, userId });
 
     } catch (error) {
         console.error('❌ Log into X error:', error);
