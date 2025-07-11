@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         const { accessToken, accessSecret, screenName, userId } = await client.login(oauth_verifier);
 
         // Optional cleanup
-        deleteSecret(oauth_token);
+        await redis.del(`twitter_oauth_secret:${oauth_token}`);
 
         res.status(200).json({ accessToken, accessSecret, screenName, userId });
 
