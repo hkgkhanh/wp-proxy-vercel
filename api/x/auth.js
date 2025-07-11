@@ -1,5 +1,5 @@
 const { TwitterApi } = require('twitter-api-v2');
-import { storeSecret } from '../../lib/tokenStore';
+import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         const oauth_token = authLink.oauth_token;
 
         console.log('Saving:', oauth_token, authLink.oauth_token_secret);
-        storeSecret(authLink.oauth_token, authLink.oauth_token_secret);
+        await kv.set(`twitter:secret:${oauth_token}`, oauth_token_secret);
 
         console.log(authUrl);
         res.status(200).json({ authUrl, oauth_token});

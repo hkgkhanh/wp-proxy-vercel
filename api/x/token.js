@@ -1,5 +1,5 @@
 const { TwitterApi } = require('twitter-api-v2');
-import { getSecret, deleteSecret } from '../../lib/tokenStore';
+import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     const { oauth_token, oauth_verifier } = req.body;
-    const oauth_token_secret = getSecret(oauth_token);
+    const oauth_token_secret = await kv.get(`twitter:secret:${oauth_token}`);
 
     console.log(oauth_token, oauth_verifier, oauth_token_secret);
 
