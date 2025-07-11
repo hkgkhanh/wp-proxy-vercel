@@ -12,6 +12,8 @@ export default async function handler(req, res) {
     const { oauth_token, oauth_verifier } = req.body;
     const oauth_token_secret = getSecret(oauth_token);
 
+    console.log(oauth_token, oauth_verifier, oauth_token_secret);
+
     if (!oauth_token || !oauth_verifier || !oauth_token_secret) {
         return res.status(400).json({ error: 'Missing or invalid oauth_token or secret' });
     }
