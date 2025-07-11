@@ -21,6 +21,7 @@ export default async function handler(req, res) {
         const authUrl = authLink.url;
         const oauth_token = authLink.oauth_token;
 
+        console.log('Saving:', oauth_token, authLink.oauth_token_secret);
         storeSecret(authLink.oauth_token, authLink.oauth_token_secret);
 
         console.log(authUrl);
