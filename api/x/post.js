@@ -1,5 +1,10 @@
-// /api/x/post.js
 const { TwitterApi } = require('twitter-api-v2');
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 function splitTextIntoTweets(text, maxLength = 280) {
   const chunks = [];
@@ -35,20 +40,18 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
+    if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     try {
-        const { text, mediaId } = req.body;
+        const { text, mediaId, accessToken } = req.body;
+        const accessSecret = await redis.get(`twitter_access_secret:${accessToken}`);
 
         const client = new TwitterApi({
             appKey: process.env.X_API_KEY,
             appSecret: process.env.X_API_SECRET,
-            accessToken: process.env.X_ACCESS_TOKEN,
-            accessSecret: process.env.X_ACCESS_SECRET,
+            accessToken: accessToken,
+            accessSecret: accessSecret,
         });
 
         // const user = await client.v2.me();

@@ -1,5 +1,11 @@
 // /api/x/upload.js
 const { TwitterApi } = require('twitter-api-v2');
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,13 +19,14 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     try {
-        const { base64, filename, mimeType } = req.body;
+        const { base64, filename, mimeType, accessToken } = req.body;
+        const accessSecret = await redis.get(`twitter_access_secret:${accessToken}`);
 
         const client = new TwitterApi({
             appKey: process.env.X_API_KEY,
             appSecret: process.env.X_API_SECRET,
-            accessToken: process.env.X_ACCESS_TOKEN,
-            accessSecret: process.env.X_ACCESS_SECRET,
+            accessToken: accessToken,
+            accessSecret: accessSecret,
         });
 
         // Strip "data:image/jpeg;base64," etc. part
