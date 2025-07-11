@@ -13,7 +13,7 @@ exports.default = async function handler(req, res) {
         return res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
     }
 
-    const system_message = "You are a professional blog writer and SEO expert. Given a blog title and a list of SEO keywords, generate a full, well-structured blog post (maximum 3000 characters) with a compelling introduction, informative body, and a strong conclusion. Naturally incorporate all keywords without stuffing, write in a conversational yet authoritative tone, and optimize the content for both search engines and human readers. Respond with the complete blog content only, with no extra commentary. More specific title, SEO keywords, and further instruction will be provided by the user.";
+    const system_message = "You are a professional blog writer and SEO expert. Given a blog title and a list of SEO keywords, generate a full, well-structured blog post (maximum 3000 characters) with a compelling introduction, informative body, and a strong conclusion. Naturally incorporate all keywords without stuffing, write in a conversational yet authoritative tone, and optimize the content for both search engines and human readers. Respond with the complete blog content only, with no extra commentary. More specific title, SEO keywords, and further instruction will be provided by the user. Do not include any markdown code blocks or formatting tags—just output the plain blog content.";
     // console.log(req.body.prompt);
 
     // const HF_TOKEN = process.env.HF_TOKEN;
