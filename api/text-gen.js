@@ -14,6 +14,7 @@ exports.default = async function handler(req, res) {
     }
 
     const system_message = "You are a professional blog writer and SEO expert. Given a blog title and a list of SEO keywords, generate a full, well-structured blog post (maximum 3000 characters) with a compelling introduction, informative body using H2/H3 subheadings, and a strong conclusion. Naturally incorporate all keywords without stuffing, write in a conversational yet authoritative tone, and optimize the content for both search engines and human readers. Respond with the complete blog content only, with no extra commentary. More specific title, SEO keywords, and further instruction will be provided by the user.";
+    console.log(req.body.prompt);
 
     // const HF_TOKEN = process.env.HF_TOKEN;
     const CF_ACCID = process.env.CLOUDFLARE_ACCID;
@@ -39,7 +40,7 @@ exports.default = async function handler(req, res) {
         const responseData = await response.json();
 
         // console.log(CF_ACCID);
-        // console.log(responseData);
+        console.log(responseData);
 
         if (responseData.response) {
             res.status(200).json({ response: responseData.response });
