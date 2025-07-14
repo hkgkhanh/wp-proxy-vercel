@@ -53,6 +53,7 @@ export default async function handler(req, res) {
         });
 
         const wpData = await wpRes.json();
+        console.log(wpData);
 
         if (!wpRes.ok) {
             return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
