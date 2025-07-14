@@ -16,14 +16,9 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
     try {
-        const { base64, filename = 'upload.jpg', mimeType = 'image/jpeg' } = req.body;
+        const { base64, filename = 'upload.jpg', mimeType = 'image/jpeg', title, content } = req.body;
         const token = req.headers['authorization'];
         const site = req.headers['site'];
-        // const filename = req.headers['x-filename'] || 'upload.jpg';
-
-        // console.log(base64);
-        // console.log(filename);
-        // console.log(mimeType);
 
         const timestamp = Date.now();
         const dotIndex = filename.lastIndexOf('.');
@@ -46,12 +41,6 @@ export default async function handler(req, res) {
             Buffer.from(`\r\n--${boundary}--\r\n`)
         ]);
 
-        // const base64String = base64.replace(/^data:image\/jpeg;base64,/, '').replace(/ /g, '+');
-        // const buffer = Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
-
-        // console.log(buffer);
-        // console.log('Buffer length:', buffer.length);
-
         // Gửi file buffer lên WordPress
         const wpRes = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/media/new`, {
             method: 'POST',
@@ -64,13 +53,37 @@ export default async function handler(req, res) {
         });
 
         const wpData = await wpRes.json();
-        // console.log(wpData);
 
         if (!wpRes.ok) {
             return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
         }
 
-        res.status(200).json(wpData);
+        const imageUrl = wpData.media[0].URL;
+        const finalContent = imageUrl
+            ? content.replace('[image_insert_here]', `![Image](${imageUrl})`)
+            : content;
+
+
+        const response = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/posts/new`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title,
+                finalContent,
+                status: 'publish'
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.message || 'Đăng bài thất bại' });
+        }
+
+        res.status(200).json(data);
     } catch (err) {
         res.status(500).json({ error: err.message || 'Lỗi server' });
     }
