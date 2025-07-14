@@ -18,10 +18,12 @@ exports.default = async function handler(req, res) {
     "Output in the following format:\n" +
     "<content>\n" +
     "The content of the blog about the topic based on the given title and SEO keywords. The tone of the content is professional and intriguing and each argument should be developed thoroughly. Make sure that the content should be less than 3000 characters.\n" +
+    "Word limit: 400\n" +
     "You must also choose a position within the content (inside the <content> only, not in the summary tag or sdprompt tag) to add the following string and only this string to specify the position of the image which will be added to the final post, not including the image file name or image text placeholder or anything else: [image_insert_here]\n" +
     "</content>\n" +
     "<summary>\n" +
     "One sentence of less than 180 characters (this is a must) that summarizes the content of the blog that you have just generated. The tone of the sentence is professional and intriguing.\n" +
+    "Word limit: 30\n" +
     "</summary>\n" +
     "<sdprompt>\n" +
     "A prompt to generate an image using Stable Diffusion model based on the content of the blog that you have just generated.\n" +
