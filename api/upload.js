@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
     try {
-        const { base64, filename = 'upload.jpg', mimeType = 'image/jpeg', title, content } = req.body;
+        const { post_token, base64, filename = 'upload.jpg', mimeType = 'image/jpeg', title, content } = req.body;
         const token = req.headers['authorization'];
         const site = req.headers['site'];
 
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
         const response = await fetch(`https://public-api.wordpress.com/rest/v1.1/sites/${site}/posts/new`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${post_token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
