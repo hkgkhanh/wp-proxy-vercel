@@ -13,13 +13,26 @@ exports.default = async function handler(req, res) {
         return res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
     }
 
-    const system_message = "You are a professional blog writer and SEO expert. Given a blog title and a list of SEO keywords, generate a full, well-structured blog post (maximum 3000 characters) with a compelling introduction, informative body, and a strong conclusion. Naturally incorporate all keywords without stuffing, write in a conversational yet authoritative tone, and optimize the content for both search engines and human readers. Respond with the complete blog content only, with no extra commentary. More specific title, SEO keywords, and further instruction will be provided by the user. Do not include any markdown code blocks or formatting tags—just output the plain blog content.";
+    const system_message = "You are a professional blog writer and SEO expert.\n" +
+    "Input: a title for a blog and some SEO keywords, separated by commas.\n" +
+    "Output in the following format:\n" +
+    "<content>\n" +
+    "The content of the blog in less than 3000 characters (this is a must) about the topic based on the given title and SEO keywords. The tone of the content is professional and intriguing and each argument should be developed thoroughly.\n" +
+    "You must also choose a position within the content (inside the <content> only, not in the summary tag or sdprompt tag) to add the following string and only this string to specify the position of the image which will be added to the final post, not including the image file name or image text placeholder or anything else: [image_insert_here]\n" +
+    "</content>\n" +
+    "<summary>\n" +
+    "One sentence of less than 180 characters (this is a must) that summarizes the content of the blog that you have just generated. The tone of the sentence is professional and intriguing.\n" +
+    "</summary>\n" +
+    "<sdprompt>\n" +
+    "A prompt to generate an image using Stable Diffusion model based on the content of the blog that you have just generated.\n" +
+    "</sdprompt>\n\n" +
+    "You must make sure that for each content of your output, it is consisted of only the content required in the format above, no extra signs or symbols are allowed.";
     // console.log(req.body.prompt);
 
     // const HF_TOKEN = process.env.HF_TOKEN;
     const CF_ACCID = process.env.CLOUDFLARE_ACCID;
     const CF_TOKEN = process.env.CLOUDFLARE_TOKEN;
-    const model = "@cf/mistral/mistral-7b-instruct-v0.2-lora";
+    const model = "@cf/openchat/openchat-3.5-0106";
 
     const MODEL_ENDPOINT = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCID}/ai/run/${model}`; // hoặc model khác
 
