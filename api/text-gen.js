@@ -17,7 +17,7 @@ exports.default = async function handler(req, res) {
     "Input: a title for a blog and some SEO keywords, separated by commas.\n" +
     "Output in the following format:\n" +
     "<content>\n" +
-    "The content of the blog in less than 3000 characters (this is a must) about the topic based on the given title and SEO keywords. The tone of the content is professional and intriguing and each argument should be developed thoroughly.\n" +
+    "The content of the blog about the topic based on the given title and SEO keywords. The tone of the content is professional and intriguing and each argument should be developed thoroughly. Make sure that the content should be less than 3000 characters.\n" +
     "You must also choose a position within the content (inside the <content> only, not in the summary tag or sdprompt tag) to add the following string and only this string to specify the position of the image which will be added to the final post, not including the image file name or image text placeholder or anything else: [image_insert_here]\n" +
     "</content>\n" +
     "<summary>\n" +
