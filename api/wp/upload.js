@@ -59,6 +59,10 @@ export default async function handler(req, res) {
             return res.status(wpRes.status).json({ error: wpData.message || 'Upload thất bại' });
         }
 
+        if (title == "" && content == "") {
+            return res.status(200).json(wpData)
+        }
+
         const imageUrl = wpData.media[0].URL;
         const finalContent = imageUrl
             ? content.replace('[image_insert_here]', `![Image](${imageUrl})`)

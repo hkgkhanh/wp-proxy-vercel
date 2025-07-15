@@ -8,7 +8,7 @@ exports.default = async function handler(req, res) {
 
     try {
         const { token } = req.body;
-        console.log(token);
+        // console.log(token);
 
         if (!token) {
             return res.status(400).json({ error: 'Thiếu thông tin bắt buộc' });
@@ -21,7 +21,7 @@ exports.default = async function handler(req, res) {
         });
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data.message || 'Get pages failed' });
