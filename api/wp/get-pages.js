@@ -8,7 +8,7 @@ exports.default = async function handler(req, res) {
 
     try {
         const { token } = req.body;
-        console.log(req.body);
+        console.log(token);
 
         if (!token) {
             return res.status(400).json({ error: 'Thiếu thông tin bắt buộc' });
