@@ -12,7 +12,7 @@ exports.default = async function handler(req, res) {
     "<content>\n" +
     "The content of the blog about the topic based on the given title and SEO keywords. The tone of the content is professional and intriguing. Each argument should be developed thoroughly into a paragraph and there should be at least 3 paragraphs. Make sure that the content should be less than 3000 characters.\n" +
     "Word limit: 400\n" +
-    "You must also choose a position within the content (inside the <content> only, not in the summary tag or sdprompt tag) to add the following string and only this string to specify the position of the image which will be added to the final post, not including the image file name or image text placeholder or anything else: [image_insert_here]\n" +
+    "You must also choose a position within this content tag to add the following string and only this string to specify the position of the image which will be added to the final post, not including the image file name or image text placeholder or anything else: [image_insert_here]\n" +
     "</content>\n" +
     "<summary>\n" +
     "One sentence of less than 180 characters (this is a must) that summarizes the content of the blog that you have just generated. The tone of the sentence is professional and intriguing.\n" +
@@ -21,7 +21,7 @@ exports.default = async function handler(req, res) {
     "<sdprompt>\n" +
     "A prompt to generate an image using Stable Diffusion model based on the content of the blog that you have just generated.\n" +
     "</sdprompt>\n\n" +
-    "You must make sure that for each of your response, it is consisted of only the content required in the format above, no extra signs or symbols are allowed.";
+    "You must make sure that for each of your response, it is consisted of only the content required in the format above, including the content, summary and sdprompt, no extra signs or symbols are allowed.";
     // console.log(req.body.prompt);
 
     // const HF_TOKEN = process.env.HF_TOKEN;
