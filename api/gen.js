@@ -24,7 +24,7 @@ exports.default = async function handler(req, res) {
             //     options: { wait_for_model: true },
             // }),
             body: JSON.stringify({
-                prompt: req.body.prompt || "A robot dancing in the rain"
+                prompt: req.body.prompt || "An image with the text that says 'No image generated'"
             })
         });
 
