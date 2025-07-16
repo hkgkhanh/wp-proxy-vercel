@@ -48,8 +48,8 @@ exports.default = async function handler(req, res) {
 
         const responseData = await response.json();
 
-        console.log(CF_ACCID)
-        console.log(responseData);
+        // console.log(CF_ACCID)
+        // console.log(responseData);
 
         if (responseData.result.response) {
             res.status(200).json({ response: responseData.result.response });
